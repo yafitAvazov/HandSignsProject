@@ -40,7 +40,8 @@
         </div>
     
         <div id="camera">
-            <img src="{{ url_for('video_feed') }}" id="videoFeed" alt="Video Feed">
+            <video id="videoFeed" autoplay muted playsinline></video>
+            <canvas id="cameraCanvas" style="display: none;"></canvas>
             <img id="capturedImage">
             <div id="startContainer">
                 <button id="startButton">Start</button>
@@ -100,5 +101,6 @@
 
 </body>
 
+<script src="/static/JS/browserCamera.js"></script>
 <script src="/static/JS/selfTest.js"></script>
 </html>

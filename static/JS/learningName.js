@@ -53,16 +53,14 @@ function getLettersFromImages(predictedLetter) {
 }
 
 function predict() {
-    fetch('/predict') // API for the GET request
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.text();
-        })
+    predictCameraFrame()
         .then(data => {
+            if (!data) {
+                return;
+            }
+
             // עדכון הטקסט של החיזוי
-            const predictedLetter = data.trim();
+            const predictedLetter = data.prediction.trim();
             document.getElementById('predictionText').textContent = ` ${predictedLetter}`;
 
             // קריאה לפונקציה שמעדכנת את התמונות לפי החיזוי

@@ -16,11 +16,67 @@ classes = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
            'U', 'V', 'W', 'X', 'Y', 'Z']
 # הגדרות Mediapipe
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands()
 mp_drawing = mp.solutions.drawing_utils
 
-# טעינת המודל שלך
-model = load_model(r"hand sign model cnn tensorflow\hand_landmarks.h5")  # מסלול המודל שהעלית
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "hand sign model cnn tensorflow", "hand_landmarks.h5")
+
+_hands = None
+_model = None
+_camera = None
+
+
+def get_hands():
+    global _hands
+    if _hands is None:
+        _hands = mp_hands.Hands()
+    return _hands
+
+
+def get_model():
+    global _model
+    if _model is None:
+        _model = load_model(MODEL_PATH)
+    return _model
+
+
+def get_camera():
+    global _camera
+    if _camera is None:
+        _camera = cv2.VideoCapture(0)
+    return _camera
+
+
+def predict_frame(frame):
+    hands = get_hands()
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    results = hands.process(frame_rgb)
+
+    if not results.multi_hand_landmarks:
+        return 'לא נמצאה יד', frame
+
+    model = get_model()
+    predicted_character = 'לא נמצאה יד'
+
+    for hand_landmarks in results.multi_hand_landmarks:
+        landmarks = [[landmark.x, landmark.y, landmark.z] for landmark in hand_landmarks.landmark]
+        input_data = np.array(landmarks).reshape(1, 21, 3)
+        prediction = model.predict(input_data)
+        predicted_class = np.argmax(prediction, axis=1)[0]
+        predicted_character = classes[predicted_class]
+        cv2.putText(frame, predicted_character, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+        mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+
+    return predicted_character, frame
+
+
+def decode_base64_image(image_data):
+    if ',' in image_data:
+        image_data = image_data.split(',', 1)[1]
+
+    image_bytes = base64.b64decode(image_data)
+    image_array = np.frombuffer(image_bytes, np.uint8)
+    return cv2.imdecode(image_array, cv2.IMREAD_COLOR)
 
 recognizer = sr.Recognizer()
 
@@ -37,9 +93,9 @@ word_to_number = {
     "zero": 0,
     "ten": 10
 }
-# פתיחת המצלמה
-camera = cv2.VideoCapture(0)
 def generate_frames():
+    camera = get_camera()
+    hands = get_hands()
     while True:
         success, frame = camera.read()
         if not success:
@@ -106,36 +162,13 @@ def video_feed():
 
 @app.route('/predict', methods=['POST', 'GET'])
 def predict():
+    camera = get_camera()
     success, frame = camera.read()
     if not success:
-        return 'strange thing'
+        return 'Failed to capture image from camera', 500
     else:
-        # המרה של הפריים מ-BGR ל-RGB עבור Mediapipe
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-        # זיהוי ידיים בפריים
-        results = hands.process(frame_rgb)
-
-        # ציור תווי הידיים על הפריים
-        if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                # איסוף נקודות המפתח של היד
-                landmarks = []
-                for landmark in hand_landmarks.landmark:
-                    landmarks.append([landmark.x, landmark.y, landmark.z])
-
-                # הפיכת הנקודות למערך NumPy והוספת מימד חדש
-                input_data = np.array(landmarks).reshape(1, 21, 3)
-
-                # חיזוי ה-class על ידי המודל
-                prediction = model.predict(input_data)
-                predicted_class = np.argmax(prediction, axis=1)[0]
-
-                # הצגת התו המתאים לפי החיזוי
-                predicted_character = classes[predicted_class]
-            return (f'{predicted_character}')
-        else:
-            return  predicted_character
+        predicted_character, _ = predict_frame(frame)
+        return (f'{predicted_character}')
 
     # בדיקה שהקורדינטות הן מערך עם ערכים
     if not isinstance(coordinates, list) or len(coordinates) == 0:
@@ -159,6 +192,27 @@ def predict():
     except Exception as e:
         print("Error during prediction:", e)  # לוג - הדפסת שגיאה אם יש
         return jsonify({'error': 'Prediction failed'}), 500
+
+
+@app.route('/predict_frame', methods=['POST'])
+def predict_frame_endpoint():
+    data = request.get_json(silent=True) or {}
+    image_data = data.get('image')
+
+    if not image_data:
+        return jsonify({'error': 'Missing image data'}), 400
+
+    frame = decode_base64_image(image_data)
+    if frame is None:
+        return jsonify({'error': 'Invalid image data'}), 400
+
+    predicted_character, annotated_frame = predict_frame(frame)
+    ret, buffer = cv2.imencode('.jpg', annotated_frame)
+    if not ret:
+        return jsonify({'error': 'Failed to encode image'}), 500
+
+    img_str = base64.b64encode(buffer).decode('utf-8')
+    return jsonify({'image': img_str, 'prediction': predicted_character})
 
 # @app.route('/speech_recognition')
 # def speech_recognition():
@@ -300,45 +354,17 @@ def save_name():
 
 @app.route('/capture')
 def capture():
+    camera = get_camera()
     success, frame = camera.read()
     if not success:
         return jsonify({'error': 'Failed to capture image from camera'}), 500
     else:
-        # המרה של הפריים מ-BGR ל-RGB עבור Mediapipe
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-        # זיהוי ידיים בפריים
-        results = hands.process(frame_rgb)
-
-        # ציור תווי הידיים על הפריים גם אם אין ידיים
-        if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                # איסוף נקודות המפתח של היד
-                landmarks = []
-                for landmark in hand_landmarks.landmark:
-                    landmarks.append([landmark.x, landmark.y, landmark.z])
-
-                # הפיכת הנקודות למערך NumPy והוספת מימד חדש
-                input_data = np.array(landmarks).reshape(1, 21, 3)
-
-                # חיזוי ה-class על ידי המודל
-                prediction = model.predict(input_data)
-                predicted_class = np.argmax(prediction, axis=1)[0]
-
-                # הצגת התו המתאים לפי החיזוי
-                predicted_character = classes[predicted_class]
-
-                # ציור התו על התמונה
-                cv2.putText(frame, predicted_character, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
-
-                mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-
-        # המרה בחזרה ל-BGR כדי להציג את התמונה
-        ret, buffer = cv2.imencode('.jpg', frame)
+        predicted_character, annotated_frame = predict_frame(frame)
+        ret, buffer = cv2.imencode('.jpg', annotated_frame)
         
         img_str = base64.b64encode(buffer).decode('utf-8')  # המרת התמונה לבסיס 64 להצגה ב-HTML
         # החזרת התמונה והתחזית ללקוח
-        return jsonify({'image': img_str, 'prediction': predicted_character if results.multi_hand_landmarks else 'לא נמצאה יד'})
+        return jsonify({'image': img_str, 'prediction': predicted_character})
 
 @app.route('/random_character', methods=['GET'])
 def random_character_endpoint():

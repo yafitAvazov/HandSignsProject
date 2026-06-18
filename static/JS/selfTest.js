@@ -89,9 +89,12 @@ function updateTimerStyle(timeLeft) {
 }
 
 function captureImage() {
-    fetch('/capture')
-    .then(response => response.json())
+    predictCameraFrame()
     .then(data => {
+        if (!data) {
+            return;
+        }
+
         if (data.image) {
             let capturedImage = document.getElementById('capturedImage');
             capturedImage.src = 'data:image/jpeg;base64,' + data.image;

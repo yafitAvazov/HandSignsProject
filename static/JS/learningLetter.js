@@ -15,19 +15,18 @@ const selectedImageElement = document.getElementById('selectedImage');
 
 // הפונקציה שמבצעת את החיזוי
 function predict() {
-    fetch('/predict')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.text();
-        })
+    predictCameraFrame()
         .then(data => {
-            document.getElementById('predictionText').textContent = ` ${data}`;
+            if (!data) {
+                return;
+            }
+
+            const prediction = data.prediction;
+            document.getElementById('predictionText').textContent = ` ${prediction}`;
 
             // אם יש תמונה שנבחרה, נתחיל לבדוק את ההתאמה
             if (selectedImage) {
-                checkPrediction(data);
+                checkPrediction(prediction);
             }
         })
         .catch(error => {

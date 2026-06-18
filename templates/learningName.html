@@ -63,12 +63,14 @@
 
       
         <div id="camera">
-            <img src="{{ url_for('video_feed') }}" id="videoFeed" alt="Video Feed">
+            <video id="videoFeed" autoplay muted playsinline></video>
+            <canvas id="cameraCanvas" style="display: none;"></canvas>
         </div>
         <p id="predictionText"></p>
         
         </div>
          <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/intro.min.js"></script>
+        <script src="/static/JS/browserCamera.js"></script>
         <script src="/static/JS/learningName.js"></script>
               
               

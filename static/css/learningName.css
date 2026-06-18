@@ -158,7 +158,8 @@ button:hover {
     margin-bottom: 0; /* אפשרות להוסיף מרווח קטן בתחתית אם צריך */
 }
 
-#camera img {
+#camera img,
+#camera video {
     height: 22rem;
     width: 30rem;
     border-radius: 20px;

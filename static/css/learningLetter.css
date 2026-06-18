@@ -81,7 +81,8 @@ p {
     margin-bottom: 0;
 }
 
-#camera img {
+#camera img,
+#camera video {
     height: 23rem;
     width: 30rem;
     border-radius: 20px;

@@ -1,27 +1,155 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="en">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/home.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>זיהוי כף יד עם MediaPipe</title>
- 
-    
+    <title>Hand Sign Learning</title>
 </head>
-<header>Hand Sign Learning</header>
-<p class="titlePage">AI-driven project for recognizing hand gestures</p>
-<p class="names">Yafit Avazov & Inon Reany</p>
 <body>
+    <nav class="topbar" aria-label="Main navigation">
+        <a href="/" class="brand" aria-label="Hand Sign Learning home">
+            <span class="brand-mark">
+                <img src="/static/images/hand.png" alt="">
+            </span>
+            <span>Hand Sign Learning</span>
+        </a>
+        <div class="nav-actions">
+            <a href="/learning" class="nav-link">Learning</a>
+            <a href="/practicing" class="nav-link">Practice</a>
+            <a href="/test" class="nav-button">Start test</a>
+        </div>
+    </nav>
 
-    <div class="container">
-        <a href="/learning" class="custom-button">Learning Letters</a>
-        <a href="/practicing"class="custom-button"> Practice Letters</a>
-        <a href="/test" class="custom-button">  Self Test   </a>
-    </div>
-   
+    <main>
+        <section class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">ASL learning powered by camera feedback</p>
+                <h1>Learn hand signs through playful, visual practice.</h1>
+                <p class="hero-text">
+                    Explore letters, train your hand shapes, match signs by voice, and test your progress in a calm interactive workspace.
+                </p>
+
+                <form class="search-panel" role="search">
+                    <label for="homeSearch">Search learning modes</label>
+                    <div class="search-field">
+                        <span class="search-icon" aria-hidden="true"></span>
+                        <input id="homeSearch" type="search" placeholder="Learning, practice, voice, test...">
+                    </div>
+                </form>
+
+                <div class="hero-actions">
+                    <a href="/learning" class="primary-cta">Browse lessons</a>
+                    <a href="/test" class="secondary-cta">Try self test</a>
+                </div>
+            </div>
+
+            <div class="hero-preview" aria-label="Learning preview">
+                <div class="preview-card main-preview">
+                    <div class="preview-header">
+                        <span class="status-dot"></span>
+                        <span>Live recognition</span>
+                    </div>
+                    <div class="hand-stage">
+                        <img src="/static/images/handTranspare.png" alt="Hand sign preview">
+                        <span class="motion-ring ring-one"></span>
+                        <span class="motion-ring ring-two"></span>
+                    </div>
+                </div>
+
+                <div class="floating-card audio-card">
+                    <img src="/static/images/wired-outline-188-microphone-recording-loop-recording.gif" alt="">
+                    <div>
+                        <span>Voice match</span>
+                        <strong>Letter B</strong>
+                    </div>
+                </div>
+
+                <div class="floating-card score-card">
+                    <img src="/static/images/happy.png" alt="">
+                    <div>
+                        <span>Progress</span>
+                        <strong>92%</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="quick-grid" aria-label="Learning modes">
+            <article class="mode-card" data-keywords="learning letters lesson asl alphabet">
+                <a href="/learning" aria-label="Open learning letters">
+                    <span class="card-icon icon-blue">
+                        <img src="/static/images/letters.png" alt="">
+                    </span>
+                    <span class="card-kicker">Library</span>
+                    <h2>Learning Letters</h2>
+                    <p>Browse the visual sign set and choose what to learn next.</p>
+                    <span class="card-action">Open</span>
+                </a>
+            </article>
+
+            <article class="mode-card" data-keywords="practice games memory name cards">
+                <a href="/practicing" aria-label="Open practice area">
+                    <span class="card-icon icon-pink">
+                        <img src="/static/images/cards.png" alt="">
+                    </span>
+                    <span class="card-kicker">Practice</span>
+                    <h2>Practice Letters</h2>
+                    <p>Use games and guided exercises to reinforce hand shapes.</p>
+                    <span class="card-action">Open</span>
+                </a>
+            </article>
+
+            <article class="mode-card" data-keywords="voice audio microphone speech match letter pronunciation">
+                <a href="/voice-learning" aria-label="Open voice learning">
+                    <span class="card-icon icon-yellow">
+                        <img src="/static/images/wired-outline-188-microphone-recording-loop-recording.gif" alt="">
+                    </span>
+                    <span class="card-kicker">Voice</span>
+                    <h2>Voice Match</h2>
+                    <p>Hear or say a letter and match it with the right sign.</p>
+                    <span class="card-action">Open</span>
+                </a>
+            </article>
+
+            <article class="mode-card" data-keywords="test quiz camera recognition score">
+                <a href="/test" aria-label="Open self test">
+                    <span class="card-icon icon-green">
+                        <img src="/static/images/wired-lineal-61-camera-hover-flash.png" alt="">
+                    </span>
+                    <span class="card-kicker">Checkup</span>
+                    <h2>Self Test</h2>
+                    <p>Run a short camera-based challenge and review your score.</p>
+                    <span class="card-action">Open</span>
+                </a>
+            </article>
+        </section>
+
+        <section class="feature-band" aria-label="Product highlights">
+            <div class="feature-copy">
+                <p class="eyebrow">Designed for fast discovery</p>
+                <h2>Everything is visual, touch-friendly, and easy to scan.</h2>
+            </div>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <span>01</span>
+                    <p>Large visual targets for choosing letters and activities.</p>
+                </div>
+                <div class="feature-item">
+                    <span>02</span>
+                    <p>Soft motion and feedback states that keep practice clear.</p>
+                </div>
+                <div class="feature-item">
+                    <span>03</span>
+                    <p>Responsive layout for laptops, tablets, and phones.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/JS/home.js"></script>
 </body>
-
 </html>
